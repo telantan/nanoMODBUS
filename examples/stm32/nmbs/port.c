@@ -18,6 +18,8 @@ uint8_t rtu_rx_b[MB_RX_BUF_SIZE];
 
 #endif
 
+#define nmbs_bitfield_write_for_read(bf, a,b, v) ((bf)[(a)>>3] = ((bf)[(a) >> 3] & ~(1 << ((b) & 7))) | ((v) << ((b) & 7)))
+
 static nmbs_server_t* server;
 
 static nmbs_error server_read_coils(uint16_t address, uint16_t quantity, nmbs_bitfield coils_out, uint8_t unit_id,
@@ -117,7 +119,8 @@ static nmbs_error server_read_coils(uint16_t address, uint16_t quantity, nmbs_bi
         if ((address >> 3) > COIL_BUF_SIZE) {
             return NMBS_ERROR_INVALID_REQUEST;
         }
-        nmbs_bitfield_write(coils_out, address, nmbs_bitfield_read(server->coils, address));
+        //nmbs_bitfield_write(coils_out, address, nmbs_bitfield_read(server->coils, address));
+        nmbs_bitfield_write_for_read(coils_out, i, address, nmbs_bitfield_read(server->coils, address));
         address++;
     }
     return NMBS_ERROR_NONE;
